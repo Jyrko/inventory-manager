@@ -1,14 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import { Button, Modal, Table, Select, TextInput, Label } from "flowbite-react";
+import { Button, Modal, Select, TextInput, Label } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
+import PaginatedTable from "@/components/dashboard/common/PaginatedTableUsers"; // New reusable component
 
 function UserManagement() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isViewDetailsModalOpen, setIsViewDetailsModalOpen] = useState(false);
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Number of users per page
+
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -30,6 +34,28 @@ function UserManagement() {
       role: "user",
       status: "active",
       date: "22 May 2024",
+    },
+    // More users for demonstration
+    {
+      id: 4,
+      name: "Alice Brown",
+      role: "user",
+      status: "active",
+      date: "10 March 2024",
+    },
+    {
+      id: 5,
+      name: "Bob Williams",
+      role: "manager",
+      status: "pending",
+      date: "14 February 2024",
+    },
+    {
+      id: 6,
+      name: "Lisa Taylor",
+      role: "admin",
+      status: "active",
+      date: "30 January 2024",
     },
   ]);
 
@@ -71,6 +97,12 @@ function UserManagement() {
     setIsDeleteConfirmationOpen(false);
   };
 
+  // Pagination logic
+  const paginatedUsers = users.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <SidebarLayout>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl mb-5">
@@ -79,7 +111,7 @@ function UserManagement() {
       <section className="bg-white py-8 dark:bg-gray-900">
         <div className="mx-auto px-4 2xl:px-0">
           <div className="mx-auto">
-            <div className="gap-4 lg:flex lg:items-center lg:justify-between">
+            <div className="gap-4 lg:flex lg:items-center lg:justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
                 User Management
               </h2>
@@ -94,53 +126,15 @@ function UserManagement() {
               </div>
             </div>
 
-            {/* User Table */}
-            <div className="mt-6 flow-root sm:mt-8">
-              <Table hoverable>
-                <Table.Head>
-                  <Table.HeadCell>User ID</Table.HeadCell>
-                  <Table.HeadCell>Name</Table.HeadCell>
-                  <Table.HeadCell>Role</Table.HeadCell>
-                  <Table.HeadCell>Status</Table.HeadCell>
-                  <Table.HeadCell>Date Registered</Table.HeadCell>
-                  <Table.HeadCell>Actions</Table.HeadCell>
-                </Table.Head>
-                <Table.Body className="divide-y">
-                  {users.map((user) => (
-                    <Table.Row
-                      key={user.id}
-                      className="bg-white dark:bg-gray-800"
-                    >
-                      <Table.Cell>{`#${user.id}`}</Table.Cell>
-                      <Table.Cell>{user.name}</Table.Cell>
-                      <Table.Cell>{user.role}</Table.Cell>
-                      <Table.Cell>
-                        <span
-                          className={`inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium ${
-                            user.status === "active"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                          }`}
-                        >
-                          {user.status === "active" ? "Active" : "Pending"}
-                        </span>
-                      </Table.Cell>
-                      <Table.Cell>{user.date}</Table.Cell>
-                      <Table.Cell>
-                        <Button
-                          size="xs"
-                          outline
-                          color="info"
-                          onClick={() => handleViewDetails(user)}
-                        >
-                          View Details
-                        </Button>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
+            {/* Paginated Table Component */}
+            <PaginatedTable
+              users={paginatedUsers}
+              handleViewDetails={handleViewDetails}
+              currentPage={currentPage}
+              totalItems={users.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
 
           {/* Add User Modal */}
