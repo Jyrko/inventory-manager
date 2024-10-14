@@ -11,7 +11,7 @@ function AddProductTab() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: any) => {
     console.log(data);
     // Handle form submission logic here
   };
@@ -78,16 +78,31 @@ function AddProductTab() {
                   })}
                 >
                   <option value="">Select category</option>
-                  <option value="TV">TV/Monitors</option>
-                  <option value="PC">PC</option>
-                  <option value="GA">Gaming/Console</option>
-                  <option value="PH">Phones</option>
+                  <option value="Laptop">Laptop</option>
+                  <option value="Phone">Phone</option>
+                  <option value="Wearable">Wearable</option>
+                  <option value="Accessories">Accessories</option>
                 </Select>
                 {errors.category && (
                   <span className="text-red-600">
                     {errors.category.message}
                   </span>
                 )}
+              </div>
+
+              {/* Amount */}
+              <div className="w-full">
+                <Label htmlFor="amount" value="Amount in Stock" />
+                <TextInput
+                  id="amount"
+                  type="number"
+                  placeholder="Enter the amount in stock"
+                  {...register("amount", { required: "Amount is required" })}
+                  color={errors.amount ? "failure" : "gray"}
+                  helperText={
+                    errors.amount && <span>{errors.amount.message}</span>
+                  }
+                />
               </div>
 
               {/* Item Weight */}

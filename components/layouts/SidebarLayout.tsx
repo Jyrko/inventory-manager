@@ -12,6 +12,8 @@ import {
   HiUserCircle
 } from "react-icons/hi";
 
+// import LenifyLogo from "@/public/images/lenify-logo.webp";
+
 interface SidebarLayoutProps {
   children: React.ReactNode;
 }
@@ -44,12 +46,12 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
         } transition-transform duration-300 md:translate-x-0`}
       >
         <Sidebar aria-label="Sidebar with multi-level dropdown example">
-          <Sidebar.Logo href="#" img="/favicon.svg" imgAlt="Flowbite logo">
-            Flowbite
+          <Sidebar.Logo href="#" img="/images/lenify-logo.webp" imgAlt="Lenify logo">
+            Lenify
           </Sidebar.Logo>
           <Sidebar.Items>
             <Sidebar.ItemGroup>
-              <Sidebar.Item href="#" icon={HiInbox}>
+              <Sidebar.Item href="/dashboard/inbox" icon={HiInbox}>
                 Inbox
               </Sidebar.Item>
               <Sidebar.Item href="/dashboard/" icon={HiChartPie}>
@@ -57,6 +59,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
               </Sidebar.Item>
               <Sidebar.Collapse icon={HiShoppingBag} label="Wharehouse">
                 <Sidebar.Item href="/dashboard/new-product">New Product</Sidebar.Item>
+                <Sidebar.Item href="/dashboard/new-category">New Category</Sidebar.Item>
                 <Sidebar.Item href="/dashboard/all-products">All Products</Sidebar.Item>
               </Sidebar.Collapse>
               <Sidebar.Item href="/dashboard/users" icon={HiUser}>

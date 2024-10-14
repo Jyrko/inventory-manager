@@ -1,9 +1,9 @@
-import UsersTab from '@/components/dashboard/UsersTab';
+import ProfileTab from '@/components/dashboard/ProfileTab';
 
 export default function Login() {
   return (
     <div>
-      <UsersTab />
+      <ProfileTab />
     </div>
   );
 }

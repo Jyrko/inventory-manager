@@ -1,6 +1,6 @@
 import AddProductTab from '@/components/dashboard/AddProductTab';
 
-export default function Login() {
+export default function NewProductPage() {
   return (
     <div>
       <AddProductTab />

@@ -1,9 +1,9 @@
-import AddProductTab from '@/components/dashboard/AddProductTab';
+import ProductsTab from '@/components/dashboard/ProductsTab';
 
-export default function Login() {
+export default function AllProductsPage() {
   return (
     <div>
-      <AddProductTab />
+      <ProductsTab />
     </div>
   );
 }
