@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
-import { Table, Pagination, TextInput, Select, Modal, Button } from "flowbite-react";
+import { Table, Pagination, TextInput, Select, 
+  // Modal, Button 
+} from "flowbite-react";
 
 interface EditableTableProps {
   data: any[];
@@ -21,7 +23,9 @@ function EditableTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [filterValues, setFilterValues] = useState<{ [key: string]: string }>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [items, setItems] = useState(data);
+  const [items, 
+    // setItems
+  ] = useState(data);
   // const [editItem, setEditItem] = useState(null);
   // const [isModalOpen, setIsModalOpen] = useState(false);
 

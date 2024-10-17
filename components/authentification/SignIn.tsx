@@ -35,6 +35,7 @@ function SignIn() {
         window.location.href = "/dashboard";
       }
     } catch (error) {
+      console.error("An error occurred:", error);
       setLoginError("An error occurred. Please check your connection and try again.");
     }
   };

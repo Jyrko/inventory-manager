@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Select, TextInput, Label } from "flowbite-react";
@@ -374,7 +374,7 @@ function UserManagement() {
             <Modal.Header>Confirm Deletion</Modal.Header>
             <Modal.Body>
               <p>
-                Are you sure you want to delete user "{selectedUser?.name}"?
+                Are you sure you want to delete user &apos;{selectedUser?.name}&apos;?
                 This action cannot be undone.
               </p>
               <div className="flex justify-end space-x-2 mt-4">

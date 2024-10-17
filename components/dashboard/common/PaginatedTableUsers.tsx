@@ -1,13 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Table, Pagination, Button } from "flowbite-react";
-
-interface User {
-  id: number;
-  name: string;
-  role: number;
-  email: string;
-  created_at: string;
-}
 
 interface PaginatedTableProps {
   users: any[];

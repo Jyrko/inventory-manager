@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
@@ -27,19 +27,22 @@ export async function GET() {
     console.log(userProfile);
     const roleName = await prisma.roles.findFirst({
       where: {
-        id: userProfile.role || 1
+        id: userProfile?.role || 1
       },
       select: {
         role_name: true
       }
     });
-    userProfile.role = roleName.role_name;
-
+    
     if (!userProfile) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    console.log(userProfile);
-    return NextResponse.json(userProfile);
+    const userProfileWithRoleName = {
+      ...userProfile,
+      role: roleName?.name || 'Unknown',
+    };
+    console.log(userProfileWithRoleName);
+    return NextResponse.json(userProfileWithRoleName);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 });
