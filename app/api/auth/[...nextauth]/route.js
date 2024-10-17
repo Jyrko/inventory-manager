@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+
 export const authOptions = {
   providers: [
     CredentialsProvider({
@@ -30,21 +31,21 @@ export const authOptions = {
     }),
   ],
   session: {
-    strategy: "jwt" as const,
+    strategy: "jwt",
   },
   pages: {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }) {
       if (session.user) {
         session.user.email = token.email;
       }
       console.log("session", session);
       return session;
     },
-    async jwt({ token, user }: { token: any; user?: { email?: string | null } }) {
+    async jwt({ token, user }) {
       if (user && user.email) {
         token.email = user.email;
       }
