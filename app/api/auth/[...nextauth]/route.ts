@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export const authOptions = {
   providers: [
@@ -37,6 +36,21 @@ export const authOptions = {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async session({ session, token }: { session: any; token: any }) {
+      if (session.user) {
+        session.user.email = token.email;
+      }
+      console.log("session", session);
+      return session;
+    },
+    async jwt({ token, user }: { token: any; user?: { email?: string | null } }) {
+      if (user && user.email) {
+        token.email = user.email;
+      }
+      return token;
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);

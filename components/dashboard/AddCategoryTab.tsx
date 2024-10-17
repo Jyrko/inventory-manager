@@ -37,7 +37,7 @@ function AddCategoryTab() {
                     required: "Category name is required",
                   })}
                   color={errors.name ? "failure" : "gray"}
-                  helperText={errors.name && <span>{errors.name.message}</span>}
+                  helperText={errors.name && <span>{String(errors.name.message)}</span>}
                 />
               </div>
 
@@ -54,7 +54,7 @@ function AddCategoryTab() {
                   color={errors.description ? "failure" : "gray"}
                   helperText={
                     errors.description && (
-                      <span>{errors.description.message}</span>
+                      <span>{String(errors.description.message)}</span>
                     )
                   }
                 />

@@ -1,7 +1,37 @@
 import React from "react";
 import { Table, Pagination, Button } from "flowbite-react";
 
-const PaginatedTable = ({ users, handleViewDetails, currentPage, totalItems, itemsPerPage, onPageChange }) => {
+interface User {
+  id: number;
+  name: string;
+  role: number;
+  email: string;
+  created_at: string;
+}
+
+interface PaginatedTableProps {
+  users: any[];
+  handleViewDetails: (user: any) => void;
+  currentPage: number;
+  totalItems: number;
+  itemsPerPage: number;
+  onPageChange: (page: number) => void;
+}
+
+const roleIdToRole = (roleId: number) => {
+  switch (roleId) {
+    case 1: 
+      return "User";
+    case 2:
+      return "Manager";
+    case 3:
+      return "Admin";
+    default:
+      return "Unknown";
+  }
+}
+
+const PaginatedTable: React.FC<PaginatedTableProps> = ({ users, handleViewDetails, currentPage, totalItems, itemsPerPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
@@ -12,7 +42,7 @@ const PaginatedTable = ({ users, handleViewDetails, currentPage, totalItems, ite
           <Table.HeadCell>User ID</Table.HeadCell>
           <Table.HeadCell>Name</Table.HeadCell>
           <Table.HeadCell>Role</Table.HeadCell>
-          <Table.HeadCell>Status</Table.HeadCell>
+          <Table.HeadCell>Email</Table.HeadCell>
           <Table.HeadCell>Date Registered</Table.HeadCell>
           <Table.HeadCell>Actions</Table.HeadCell>
         </Table.Head>
@@ -24,9 +54,10 @@ const PaginatedTable = ({ users, handleViewDetails, currentPage, totalItems, ite
             >
               <Table.Cell>{`#${user.id}`}</Table.Cell>
               <Table.Cell>{user.name}</Table.Cell>
-              <Table.Cell>{user.role}</Table.Cell>
+              <Table.Cell>{roleIdToRole(user.role)}</Table.Cell>
               <Table.Cell>
-                <span
+                {user.email}
+                {/* <span
                   className={`inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium ${
                     user.status === "active"
                       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
@@ -34,9 +65,9 @@ const PaginatedTable = ({ users, handleViewDetails, currentPage, totalItems, ite
                   }`}
                 >
                   {user.status === "active" ? "Active" : "Pending"}
-                </span>
+                </span> */}
               </Table.Cell>
-              <Table.Cell>{user.date}</Table.Cell>
+              <Table.Cell>{user.created_at}</Table.Cell>
               <Table.Cell>
                 <Button size="xs" outline color="info" onClick={() => handleViewDetails(user)}>
                   View Details

@@ -1,16 +1,31 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
 import EditableTable from "@/components/dashboard/common/EditableTable";
-import { MOCK_DATA_TABLE } from "@/constants/contants";
+import Loading from "@/components/dashboard/common/Loading";
 
 function DashboardTab() {
-  const columns = [
-    { label: "Product name", accessor: "name" },
-    { label: "Color", accessor: "color" },
-    { label: "Category", accessor: "category" },
-    { label: "Price", accessor: "price" },
-  ];
+  const [regularProducts, setRegularProducts] = useState([]);
+  const [spareParts, setSpareParts] = useState([]);
+  const [loading, setLoading] = useState(true); // New loading state
+
+  useEffect(() => {
+    const fetchProductsAndCategories = async () => {
+      try {
+        const productsResponse = await fetch("/api/products");
+        const productsData = await productsResponse.json();
+        
+        setRegularProducts(productsData.regularProducts);
+        setSpareParts(productsData.spareParts);
+        setLoading(false); // Data is loaded, stop loading
+      } catch (error) {
+        console.error("Error fetching products and categories", error);
+        setLoading(false); // Stop loading even if there's an error
+      }
+    };
+
+    fetchProductsAndCategories();
+  }, []);
 
   const filters = [
     {
@@ -26,29 +41,56 @@ function DashboardTab() {
     },
   ];
 
-  const handleEditSubmit = (updatedItem) => {
+  const columns = [
+    { label: "Product name", accessor: "name" },
+    { label: "Brand", accessor: "brand" },
+    { label: "Current stock", accessor: "amount_in_stock" },
+    { label: "Category", accessor: "category_id" },
+    { label: "Price", accessor: "price" },
+  ];
+
+  const handleEditSubmit = (updatedItem: any) => {
     console.log("Edited item:", updatedItem);
   };
 
   return (
     <SidebarLayout>
-      <h2 className="mb-5">Dashhboard</h2>
-      <h2 className="mt-10">Products</h2>
-      <EditableTable
-        data={MOCK_DATA_TABLE}
-        columns={columns}
-        filters={filters}
-        itemsPerPage={5}
-        onEditSubmit={handleEditSubmit}
-      />
-      <h2 className="my-4">Spare parts </h2>
-      <EditableTable
-        data={MOCK_DATA_TABLE}
-        columns={columns}
-        filters={filters}
-        itemsPerPage={5}
-        onEditSubmit={handleEditSubmit}
-      />
+      <h2 className="mb-5">Dashboard</h2>
+
+      {loading ? (
+        // Show loading state while data is being fetched
+        <Loading />
+      ) : (
+        <>
+          {/* Products Table */}
+          <h2 className="mt-10">Products</h2>
+          {regularProducts.length === 0 ? (
+            <p>No regular products found</p>
+          ) : (
+            <EditableTable
+              data={regularProducts}
+              columns={columns}
+              filters={filters}
+              itemsPerPage={5}
+              onEditSubmit={handleEditSubmit}
+            />
+          )}
+
+          {/* Spare Parts Table */}
+          <h2 className="my-4">Spare parts</h2>
+          {spareParts.length === 0 ? (
+            <p>No spare parts found</p>
+          ) : (
+            <EditableTable
+              data={spareParts}
+              columns={columns}
+              filters={filters}
+              itemsPerPage={5}
+              onEditSubmit={handleEditSubmit}
+            />
+          )}
+        </>
+      )}
     </SidebarLayout>
   );
 }

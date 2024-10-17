@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -33,6 +31,7 @@ export async function POST(req: Request) {
       data: {
         email,
         password: hashedPassword,
+        role: 1
       },
     });
 
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     return NextResponse.json(
-      { message: `Something went wrong. Please try again. ${error.message}` },
+      { message: `Something went wrong. Please try again. ${error}` },
       { status: 500 }
     );
   }

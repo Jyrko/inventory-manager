@@ -1,6 +1,6 @@
 "use client";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextInput, Label, Button, Checkbox, Alert } from "flowbite-react";
 import { useForm } from "react-hook-form";
 
@@ -11,22 +11,57 @@ const ProfileTab = () => {
     formState: { errors },
     reset,
     watch,
+    setValue,
   } = useForm();
 
   const [isAlertVisible, setIsAlertVisible] = useState(false);
-  const [isPasswordResetVisible, setIsPasswordResetVisible] = useState(false); // Track visibility of password fields
+  const [isPasswordResetVisible, setIsPasswordResetVisible] = useState(false);
+  const [currentRole, setCurrentRole] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Function to handle form submission
-  const onSubmit = (data) => {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        const data = await response.json();
+
+        setValue("name", data.name);
+        setValue("surname", data.surname);
+        setValue("email", data.email);
+        setCurrentRole(data.role);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching profile data", error);
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [setValue]);
+
+  const onSubmit = (data: any) => {
     console.log("Updated Data: ", data);
-    setIsAlertVisible(true); // Show confirmation alert
+    setIsAlertVisible(true);
     setTimeout(() => {
-      setIsAlertVisible(false); // Hide alert after 3 seconds
+      setIsAlertVisible(false);
     }, 3000);
     reset();
   };
 
-  const password = watch("newPassword"); // Get the new password value for validation
+  const password = watch("newPassword");
+
+  if (loading) {
+    return (
+      <SidebarLayout>
+        <div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            Loading...
+          </h2>
+        </div>
+      </SidebarLayout>
+    );
+  }
 
   return (
     <SidebarLayout>
@@ -47,6 +82,18 @@ const ProfileTab = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Role Field (Unchangeable) */}
+          <div>
+            <Label htmlFor="role" value="Role" />
+            <TextInput
+              id="role"
+              type="text"
+              value={currentRole}
+              disabled
+              className="bg-gray-200 cursor-not-allowed"
+            />
+          </div>
+
           {/* Name Field */}
           <div>
             <Label htmlFor="name" value="First Name" />
@@ -58,7 +105,7 @@ const ProfileTab = () => {
               color={errors.name ? "failure" : "gray"}
             />
             {errors.name && (
-              <span className="text-red-600">{errors.name.message}</span>
+              <span className="text-red-600">{String(errors.name.message)}</span>
             )}
           </div>
 
@@ -73,7 +120,7 @@ const ProfileTab = () => {
               color={errors.surname ? "failure" : "gray"}
             />
             {errors.surname && (
-              <span className="text-red-600">{errors.surname.message}</span>
+              <span className="text-red-600">{String(errors.surname.message)}</span>
             )}
           </div>
 
@@ -94,7 +141,7 @@ const ProfileTab = () => {
               color={errors.email ? "failure" : "gray"}
             />
             {errors.email && (
-              <span className="text-red-600">{errors.email.message}</span>
+              <span className="text-red-600">{String(errors.email.message)}</span>
             )}
           </div>
 
@@ -104,7 +151,9 @@ const ProfileTab = () => {
             className="bg-gray-700 hover:bg-gray-800 text-white"
             onClick={() => setIsPasswordResetVisible(!isPasswordResetVisible)}
           >
-            {isPasswordResetVisible ? "Cancel Password Reset" : "Reset Password"}
+            {isPasswordResetVisible
+              ? "Cancel Password Reset"
+              : "Reset Password"}
           </Button>
 
           {/* Password Fields (Visible only after clicking "Reset Password") */}
@@ -128,7 +177,7 @@ const ProfileTab = () => {
                 />
                 {errors.newPassword && (
                   <span className="text-red-600">
-                    {errors.newPassword.message}
+                    {String(errors.newPassword.message)}
                   </span>
                 )}
               </div>
@@ -149,7 +198,7 @@ const ProfileTab = () => {
                 />
                 {errors.confirmPassword && (
                   <span className="text-red-600">
-                    {errors.confirmPassword.message}
+                    {String(errors.confirmPassword.message)}
                   </span>
                 )}
               </div>

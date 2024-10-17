@@ -28,39 +28,71 @@ export default function ProductsTable ({ productsInitial }: ProductsTableProps) 
   const [filterDateTo, setFilterDateTo] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [productToEdit, 
+    // setProductToEdit
+  ] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const { register, handleSubmit, reset } = useForm();
+  
 
   const handleDeleteConfirmation = (product: Product) => {
     setProductToDelete(product);
     setIsDeleteModalOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (productToDelete) {
-      setProducts(products.filter((product) => product.id !== productToDelete.id));
-      setIsDeleteModalOpen(false);
-      setProductToDelete(null);
+      try {
+        const response = await fetch(`/api/products/${productToDelete.id}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          setProducts(products.filter((product) => product.id !== productToDelete.id));
+        }
+        setIsDeleteModalOpen(false);
+        setProductToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete product', error);
+      }
     }
   };
+  
 
-  const handleEditConfirmation = (product: Product) => {
-    setProductToEdit(product);
-    setIsEditModalOpen(true);
+  // const handleEditConfirmation = (product: Product) => {
+  //   setProductToEdit(product);
+  //   setIsEditModalOpen(true);
+  // };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEditSubmit = async (data: any) => {
+    console.log(data); 
+    if (productToEdit) {
+      try {
+        const response = await fetch(`/api/products/${productToEdit.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...data,
+            lastUpdated: new Date().toISOString(),
+          }),
+        });
+        if (response.ok) {
+          const updatedProduct = await response.json();
+          const updatedProducts = products.map((product) =>
+            product.id === productToEdit?.id ? updatedProduct : product
+          );
+          setProducts(updatedProducts);
+        }
+        setIsEditModalOpen(false);
+        reset();
+      } catch (error) {
+        console.error('Failed to update product', error);
+      }
+    }
   };
+  
 
-  const handleEditSubmit = (data: any) => {
-    const updatedProducts = products.map((product) =>
-      product.id === productToEdit?.id ? { ...product, ...data, lastUpdated: new Date().toISOString() } : product
-    );
-    setProducts(updatedProducts);
-    setIsEditModalOpen(false);
-    reset();
-  };
-
-  // Filtering Logic
   const filteredProducts = products
     .filter((product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -107,11 +139,13 @@ export default function ProductsTable ({ productsInitial }: ProductsTableProps) 
           onChange={(e) => setFilterCategory(e.target.value)}
           className="w-full md:w-1/3"
         >
-          <option value="">Filter by Category</option>
-          <option value="Laptop">Laptop</option>
-          <option value="Phone">Phone</option>
-          <option value="Wearable">Wearable</option>
-          <option value="Accessories">Accessories</option>
+          <option value="">Select a Category</option>
+          <option value="4">Laptops</option>
+          <option value="5">Accessories</option>
+          <option value="6">Phones</option>
+          <option value="7">Wearables</option>
+          <option value="8">Smart Home</option>
+          <option value="9">Tablets</option>
         </Select>
         <TextInput
           type="number"
@@ -158,9 +192,9 @@ export default function ProductsTable ({ productsInitial }: ProductsTableProps) 
                 <Table.Cell>{new Date(product.addedDate).toLocaleDateString()}</Table.Cell>
                 <Table.Cell>{new Date(product.lastUpdated).toLocaleDateString()}</Table.Cell>
                 <Table.Cell className="flex gap-2">
-                  <Button size="xs" color="info" onClick={() => handleEditConfirmation(product)}>
+                  {/* <Button size="xs" color="info" onClick={() => handleEditConfirmation(product)}>
                     Edit
-                  </Button>
+                  </Button> */}
                   <Button
                     size="xs"
                     color="failure"
@@ -223,24 +257,20 @@ export default function ProductsTable ({ productsInitial }: ProductsTableProps) 
             <form onSubmit={handleSubmit(handleEditSubmit)}>
               <div className="space-y-4">
                 <TextInput
-                  label="Product Name"
                   defaultValue={productToEdit.name}
                   {...register("name")}
                 />
                 <TextInput
-                  label="Price"
                   type="number"
                   defaultValue={productToEdit.price}
                   {...register("price")}
                 />
                 <TextInput
-                  label="Amount"
                   type="number"
                   defaultValue={productToEdit.amount}
                   {...register("amount")}
                 />
                 <Select
-                  label="Category"
                   defaultValue={productToEdit.category}
                   {...register("category")}
                 >

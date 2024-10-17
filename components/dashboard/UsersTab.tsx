@@ -1,64 +1,32 @@
+/* eslint-disable */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal, Select, TextInput, Label } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
 import PaginatedTable from "@/components/dashboard/common/PaginatedTableUsers"; // New reusable component
+import Loading from "@/components/dashboard/common/Loading";
 
 function UserManagement() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isViewDetailsModalOpen, setIsViewDetailsModalOpen] = useState(false);
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 5; // Number of users per page
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      role: "admin",
-      status: "active",
-      date: "12 April 2024",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      role: "manager",
-      status: "pending",
-      date: "06 April 2024",
-    },
-    {
-      id: 3,
-      name: "Sam Green",
-      role: "user",
-      status: "active",
-      date: "22 May 2024",
-    },
-    // More users for demonstration
-    {
-      id: 4,
-      name: "Alice Brown",
-      role: "user",
-      status: "active",
-      date: "10 March 2024",
-    },
-    {
-      id: 5,
-      name: "Bob Williams",
-      role: "manager",
-      status: "pending",
-      date: "14 February 2024",
-    },
-    {
-      id: 6,
-      name: "Lisa Taylor",
-      role: "admin",
-      status: "active",
-      date: "30 January 2024",
-    },
-  ]);
+  interface User {
+    id: number;
+    name: string;
+    role: string;
+    email: string;
+    status: string;
+    created_at: string;
+  }
 
+  const [users, setUsers] = useState<User[]>([]); // Initially empty
   const {
     register,
     handleSubmit,
@@ -66,23 +34,84 @@ function UserManagement() {
     reset,
   } = useForm();
 
+  useEffect(() => {
+    setLoading(true);
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/users"); // Fetch users from API route
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        console.log(data);
+        setUsers(data); // Set the fetched users to the state
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   // Handle adding a new user
-  const handleAddUser = (data) => {
-    setUsers([...users, { id: users.length + 1, ...data, status: "pending" }]);
-    setIsAddUserModalOpen(false);
-    reset();
+  const handleAddUser = async (data: any) => {
+    console.log(data);
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add user");
+      }
+
+      const newUser = await response.json();
+
+      // Update the local state with the new user
+      setUsers([...users, newUser]);
+      setIsAddUserModalOpen(false);
+      reset();
+    } catch (error) {
+      console.error("Error adding user:", error);
+    }
   };
 
   // Handle opening the "View Details" modal and setting the selected user
-  const handleViewDetails = (user) => {
+  const handleViewDetails = (user: User) => {
     setSelectedUser(user);
     setIsViewDetailsModalOpen(true);
   };
 
   // Handle updating the selected user's details
-  const handleUpdateUser = (updatedData) => {
-    setUsers(users.map((user) => (user.id === selectedUser.id ? updatedData : user)));
-    setIsViewDetailsModalOpen(false);
+  const handleUpdateUser = async (updatedData: any) => {
+    try {
+      const response = await fetch(`/api/users/${selectedUser?.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update user");
+      }
+
+      const updatedUser = await response.json();
+
+      // Update the local users state with the updated user data
+      setUsers(
+        users.map((user) => (user.id === selectedUser?.id ? updatedUser : user))
+      );
+      setIsViewDetailsModalOpen(false);
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
   };
 
   // Open the confirmation modal before deleting a user
@@ -91,17 +120,30 @@ function UserManagement() {
   };
 
   // Handle deleting the user
-  const handleDeleteUser = () => {
-    setUsers(users.filter((user) => user.id !== selectedUser.id));
-    setIsViewDetailsModalOpen(false);
-    setIsDeleteConfirmationOpen(false);
+  const handleDeleteUser = async () => {
+    try {
+      const response = await fetch(`/api/users/${selectedUser?.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+
+      // Remove the deleted user from the local state
+      setUsers(users.filter((user) => user.id !== selectedUser?.id));
+      setIsViewDetailsModalOpen(false);
+      setIsDeleteConfirmationOpen(false);
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   // Pagination logic
-  const paginatedUsers = users.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // const paginatedUsers = users.slice(
+  //   (currentPage - 1) * itemsPerPage,
+  //   currentPage * itemsPerPage
+  // );
 
   return (
     <SidebarLayout>
@@ -127,14 +169,18 @@ function UserManagement() {
             </div>
 
             {/* Paginated Table Component */}
-            <PaginatedTable
-              users={paginatedUsers}
-              handleViewDetails={handleViewDetails}
-              currentPage={currentPage}
-              totalItems={users.length}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-            />
+            {loading ? (
+              <Loading />
+            ) : (
+              <PaginatedTable
+                users={users}
+                handleViewDetails={handleViewDetails}
+                currentPage={currentPage}
+                totalItems={users.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
+            )}
           </div>
 
           {/* Add User Modal */}
@@ -146,6 +192,7 @@ function UserManagement() {
             <Modal.Body>
               <form onSubmit={handleSubmit(handleAddUser)}>
                 <div className="space-y-4">
+                  {/* Name Field */}
                   <div>
                     <Label htmlFor="name" value="Name" />
                     <TextInput
@@ -156,24 +203,71 @@ function UserManagement() {
                     />
                     {errors.name && (
                       <span className="text-red-600">
-                        {errors.name.message}
+                        {String(errors.name.message)}
                       </span>
                     )}
                   </div>
 
+                  {/* Role Field */}
                   <div>
                     <Label htmlFor="role" value="Role" />
                     <Select
                       id="role"
                       {...register("role", { required: "Role is required" })}
                     >
-                      <option value="admin">Admin</option>
-                      <option value="manager">Manager</option>
-                      <option value="user">User</option>
+                      <option value="1">User</option>
+                      <option value="2">Manager</option>
+                      <option value="3">Admin</option>
                     </Select>
                     {errors.role && (
                       <span className="text-red-600">
-                        {errors.role.message}
+                        {String(errors.role.message)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Email Field */}
+                  <div>
+                    <Label htmlFor="email" value="Email" />
+                    <TextInput
+                      id="email"
+                      {...register("email", {
+                        required: "Email is required",
+                        pattern: {
+                          value: /^\S+@\S+$/i,
+                          message: "Enter a valid email address",
+                        },
+                      })}
+                      placeholder="Enter user email"
+                      color={errors.email ? "failure" : "gray"}
+                    />
+                    {errors.email && (
+                      <span className="text-red-600">
+                        {String(errors.email.message)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="mb-4">
+                    <Label htmlFor="password" value="Password" />
+                    <TextInput
+                      id="password"
+                      type="password"
+                      {...register("password", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 6,
+                          message:
+                            "Password must be at least 6 characters long",
+                        },
+                      })}
+                      placeholder="Enter user password"
+                      color={errors.password ? "failure" : "gray"}
+                    />
+                    {errors.password && (
+                      <span className="text-red-600">
+                        {String(errors.password.message)}
                       </span>
                     )}
                   </div>
@@ -213,7 +307,7 @@ function UserManagement() {
                       />
                       {errors.name && (
                         <span className="text-red-600">
-                          {errors.name.message}
+                          {String(errors.name.message)}
                         </span>
                       )}
                     </div>
@@ -225,13 +319,13 @@ function UserManagement() {
                         defaultValue={selectedUser.role}
                         {...register("role", { required: "Role is required" })}
                       >
-                        <option value="admin">Admin</option>
-                        <option value="manager">Manager</option>
-                        <option value="user">User</option>
+                        <option value="1">User</option>
+                        <option value="2">Manager</option>
+                        <option value="3">Admin</option>
                       </Select>
                       {errors.role && (
                         <span className="text-red-600">
-                          {errors.role.message}
+                          {String(errors.role.message)}
                         </span>
                       )}
                     </div>
@@ -241,14 +335,16 @@ function UserManagement() {
                       <Select
                         id="status"
                         defaultValue={selectedUser.status}
-                        {...register("status", { required: "Status is required" })}
+                        {...register("status", {
+                          required: "Status is required",
+                        })}
                       >
                         <option value="active">Active</option>
                         <option value="pending">Pending</option>
                       </Select>
                       {errors.status && (
                         <span className="text-red-600">
-                          {errors.status.message}
+                          {String(errors.status.message)}
                         </span>
                       )}
                     </div>
@@ -260,10 +356,7 @@ function UserManagement() {
                       >
                         Save Changes
                       </Button>
-                      <Button
-                        color="failure"
-                        onClick={openDeleteConfirmation}
-                      >
+                      <Button color="failure" onClick={openDeleteConfirmation}>
                         Delete User
                       </Button>
                     </div>
@@ -280,7 +373,10 @@ function UserManagement() {
           >
             <Modal.Header>Confirm Deletion</Modal.Header>
             <Modal.Body>
-              <p>Are you sure you want to delete user "{selectedUser?.name}"? This action cannot be undone.</p>
+              <p>
+                Are you sure you want to delete user "{selectedUser?.name}"?
+                This action cannot be undone.
+              </p>
               <div className="flex justify-end space-x-2 mt-4">
                 <Button
                   color="gray"
@@ -288,10 +384,7 @@ function UserManagement() {
                 >
                   Cancel
                 </Button>
-                <Button
-                  color="failure"
-                  onClick={handleDeleteUser}
-                >
+                <Button color="failure" onClick={handleDeleteUser}>
                   Delete
                 </Button>
               </div>

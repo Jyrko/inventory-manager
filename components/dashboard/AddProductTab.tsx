@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -11,9 +12,35 @@ function AddProductTab() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Handle form submission logic here
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await fetch("/api/add-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          brand: data.brand,
+          price: data.price,
+          category: data.category,
+          amount: data.amount,
+          itemWeight: data.itemWeight,
+          description: data.description,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Product added successfully:", result);
+        // Reset the form or show success feedback to the user
+      } else {
+        const errorData = await response.json();
+        console.error("Error adding product:", errorData.error);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
@@ -35,7 +62,7 @@ function AddProductTab() {
                     required: "Product name is required",
                   })}
                   color={errors.name ? "failure" : "gray"}
-                  helperText={errors.name && <span>{errors.name.message}</span>}
+                  helperText={errors.name && <span>{String(errors.name.message)}</span>}
                 />
               </div>
 
@@ -48,7 +75,7 @@ function AddProductTab() {
                   {...register("brand", { required: "Brand is required" })}
                   color={errors.brand ? "failure" : "gray"}
                   helperText={
-                    errors.brand && <span>{errors.brand.message}</span>
+                    errors.brand && <span>{String(errors.brand.message)}</span>
                   }
                 />
               </div>
@@ -63,7 +90,7 @@ function AddProductTab() {
                   {...register("price", { required: "Price is required" })}
                   color={errors.price ? "failure" : "gray"}
                   helperText={
-                    errors.price && <span>{errors.price.message}</span>
+                    errors.price && <span>{String(errors.price.message)}</span>
                   }
                 />
               </div>
@@ -77,15 +104,17 @@ function AddProductTab() {
                     required: "Category is required",
                   })}
                 >
-                  <option value="">Select category</option>
-                  <option value="Laptop">Laptop</option>
-                  <option value="Phone">Phone</option>
-                  <option value="Wearable">Wearable</option>
-                  <option value="Accessories">Accessories</option>
+                  <option value="">Select a Category</option>
+                  <option value="4">Laptops</option>
+                  <option value="5">Accessories</option>
+                  <option value="6">Phones</option>
+                  <option value="7">Wearables</option>
+                  <option value="8">Smart Home</option>
+                  <option value="9">Tablets</option>
                 </Select>
                 {errors.category && (
                   <span className="text-red-600">
-                    {errors.category.message}
+                    {String(errors.category.message)}
                   </span>
                 )}
               </div>
@@ -100,7 +129,7 @@ function AddProductTab() {
                   {...register("amount", { required: "Amount is required" })}
                   color={errors.amount ? "failure" : "gray"}
                   helperText={
-                    errors.amount && <span>{errors.amount.message}</span>
+                    errors.amount && <span>{String(errors.amount.message)}</span>
                   }
                 />
               </div>
@@ -118,7 +147,7 @@ function AddProductTab() {
                   color={errors.itemWeight ? "failure" : "gray"}
                   helperText={
                     errors.itemWeight && (
-                      <span>{errors.itemWeight.message}</span>
+                      <span>{String(errors.itemWeight.message)}</span>
                     )
                   }
                 />
@@ -137,7 +166,7 @@ function AddProductTab() {
                   color={errors.description ? "failure" : "gray"}
                   helperText={
                     errors.description && (
-                      <span>{errors.description.message}</span>
+                      <span>{String(errors.description.message)}</span>
                     )
                   }
                 />

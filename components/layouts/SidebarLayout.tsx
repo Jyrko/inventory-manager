@@ -6,7 +6,7 @@ import {signOut} from "next-auth/react";
 import {
   HiMenu,
   HiChartPie,
-  HiInbox,
+  // HiInbox,
   HiShoppingBag,
   HiUser,
   HiX,
@@ -53,15 +53,15 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           </Sidebar.Logo>
           <Sidebar.Items>
             <Sidebar.ItemGroup>
-              <Sidebar.Item href="/dashboard/inbox" icon={HiInbox}>
+              {/* <Sidebar.Item href="/dashboard/inbox" icon={HiInbox}>
                 Inbox
-              </Sidebar.Item>
+              </Sidebar.Item> */}
               <Sidebar.Item href="/dashboard/" icon={HiChartPie}>
                 Dashboard
               </Sidebar.Item>
               <Sidebar.Collapse icon={HiShoppingBag} label="Wharehouse">
                 <Sidebar.Item href="/dashboard/new-product">New Product</Sidebar.Item>
-                <Sidebar.Item href="/dashboard/new-category">New Category</Sidebar.Item>
+                {/* <Sidebar.Item href="/dashboard/new-category">New Category</Sidebar.Item> */}
                 <Sidebar.Item href="/dashboard/all-products">All Products</Sidebar.Item>
               </Sidebar.Collapse>
               <Sidebar.Item href="/dashboard/users" icon={HiUser}>
@@ -70,7 +70,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
               <Sidebar.Item href="/dashboard/profile" icon={HiUserCircle}>
                 Profile
               </Sidebar.Item>
-              <Sidebar.Item onClick={() => signOut({ callbackUrl: "/login" })} icon={HiOutlineLogout} class="cursor-pointer">
+              <Sidebar.Item onClick={() => signOut({ callbackUrl: "/login" })} icon={HiOutlineLogout} className="cursor-pointer">
                 Sign Out
               </Sidebar.Item>
             </Sidebar.ItemGroup>

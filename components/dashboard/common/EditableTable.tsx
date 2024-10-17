@@ -16,14 +16,14 @@ function EditableTable({
   columns,
   filters = [],
   itemsPerPage = 5,
-  onEditSubmit,
+  // onEditSubmit,
 }: EditableTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterValues, setFilterValues] = useState({});
+  const [filterValues, setFilterValues] = useState<{ [key: string]: string }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [items, setItems] = useState(data);
-  const [editItem, setEditItem] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [editItem, setEditItem] = useState(null);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle search and filter logic
   const filteredData = items.filter((item) => {
@@ -42,30 +42,30 @@ function EditableTable({
     currentPage * itemsPerPage
   );
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: React.SetStateAction<number>) => {
     setCurrentPage(page);
   };
 
-  const openEditModal = (item) => {
-    setEditItem(item); // Set the item to edit
-    setIsModalOpen(true); // Open the modal
-  };
+  // const openEditModal = (item) => {
+  //   setEditItem(item); // Set the item to edit
+  //   setIsModalOpen(true); // Open the modal
+  // };
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditItem((prevItem) => ({
-      ...prevItem,
-      [name]: value,
-    }));
-  };
+  // const handleEditChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setEditItem((prevItem) => ({
+  //     ...prevItem,
+  //     [name]: value,
+  //   }));
+  // };
 
-  const handleEditSubmit = () => {
-    setItems((prevItems) =>
-      prevItems.map((item) => (item.id === editItem.id ? editItem : item))
-    );
-    onEditSubmit && onEditSubmit(editItem); // Optional callback for parent
-    setIsModalOpen(false); // Close the modal
-  };
+  // const handleEditSubmit = () => {
+  //   setItems((prevItems) =>
+  //     prevItems.map((item) => (item.id === editItem.id ? editItem : item))
+  //   );
+  //   onEditSubmit && onEditSubmit(editItem); // Optional callback for parent
+  //   setIsModalOpen(false); // Close the modal
+  // };
 
   return (
     <div>
@@ -105,9 +105,9 @@ function EditableTable({
             {columns.map((col) => (
               <Table.HeadCell key={col.accessor}>{col.label}</Table.HeadCell>
             ))}
-            <Table.HeadCell>
+            {/* <Table.HeadCell>
               <span className="sr-only">Edit</span>
-            </Table.HeadCell>
+            </Table.HeadCell> */}
           </Table.Head>
           <Table.Body className="divide-y">
             {paginatedData.length > 0 ? (
@@ -116,7 +116,7 @@ function EditableTable({
                   {columns.map((col) => (
                     <Table.Cell key={col.accessor}>{item[col.accessor]}</Table.Cell>
                   ))}
-                  <Table.Cell>
+                  {/* <Table.Cell>
                     <a
                       href="#"
                       onClick={() => openEditModal(item)}
@@ -124,7 +124,7 @@ function EditableTable({
                     >
                       Edit
                     </a>
-                  </Table.Cell>
+                  </Table.Cell> */}
                 </Table.Row>
               ))
             ) : (
@@ -148,7 +148,7 @@ function EditableTable({
       </div>
 
       {/* Edit Modal */}
-      {editItem && (
+      {/* {editItem && (
         <Modal show={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <Modal.Header>Edit Item</Modal.Header>
           <Modal.Body>
@@ -171,7 +171,7 @@ function EditableTable({
             </Button>
           </Modal.Footer>
         </Modal>
-      )}
+      )} */}
     </div>
   );
 }
