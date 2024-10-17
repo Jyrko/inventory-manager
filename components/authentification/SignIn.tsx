@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import LenifyLogo from "@/public/images/lenify-logo.webp";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
 
 interface FormData {
   email: string;
@@ -14,22 +15,35 @@ interface FormData {
 
 function SignIn() {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
-  const [formData] = useState<FormData>({
-    email: "",
-    password: "",
-    rememberMe: false,
-  });
-
   const [isForgotPasswordClicked, setIsForgotPasswordClicked] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
-  const onSubmit = (data: FormData) => {
-    // Handle form submission logic here
-    console.log("Form Data: ", data);
+  const onSubmit = async (data: FormData) => {
+    try {
+      // Use NextAuth.js's signIn method
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
+  
+      // Handle the result of signIn
+      if (result?.error) {
+        setLoginError("Invalid email or password. Please try again.");
+      } else {
+        // Redirect to the dashboard after successful login
+        window.location.href = "/dashboard";
+      }
+    } catch (error) {
+      setLoginError("An error occurred. Please check your connection and try again.");
+    }
   };
+  
 
   const handleForgotPasswordClick = () => {
     setIsForgotPasswordClicked(true);
   };
+
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -70,12 +84,14 @@ function SignIn() {
                   <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
                 )}
               </div>
+              {loginError && (
+                <p className="text-red-600 text-sm mt-1">{loginError}</p>
+              )}
               <div className="flex items-center justify-between">
                 <div className="flex items-start">
                   <Checkbox
                     id="remember"
                     {...register("rememberMe")}
-                    defaultChecked={formData.rememberMe}
                   />
                   <Label htmlFor="remember" className="ml-2 text-sm font-light text-gray-500 dark:text-gray-300">
                     Remember me

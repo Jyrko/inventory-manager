@@ -1,9 +1,10 @@
 import AddCategoryTab from '@/components/dashboard/AddCategoryTab';
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function NewProductPage() {
   return (
-    <div>
+    <ProtectedRoute>
       <AddCategoryTab />
-    </div>
+    </ProtectedRoute>
   );
 }

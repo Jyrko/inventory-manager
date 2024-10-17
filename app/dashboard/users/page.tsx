@@ -1,9 +1,10 @@
 import UsersTab from '@/components/dashboard/UsersTab';
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function UsersPage() {
   return (
-    <div>
+    <ProtectedRoute>
       <UsersTab />
-    </div>
+    </ProtectedRoute>
   );
 }

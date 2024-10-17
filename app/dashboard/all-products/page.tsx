@@ -1,9 +1,10 @@
 import ProductsTab from '@/components/dashboard/ProductsTab';
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function AllProductsPage() {
   return (
-    <div>
+    <ProtectedRoute>
       <ProductsTab />
-    </div>
+    </ProtectedRoute>
   );
 }

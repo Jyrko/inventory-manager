@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Sidebar } from "flowbite-react";
+import {signOut} from "next-auth/react";
 import {
   HiMenu,
   HiChartPie,
@@ -9,7 +10,8 @@ import {
   HiShoppingBag,
   HiUser,
   HiX,
-  HiUserCircle
+  HiUserCircle,
+  HiOutlineLogout
 } from "react-icons/hi";
 
 // import LenifyLogo from "@/public/images/lenify-logo.webp";
@@ -68,12 +70,14 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
               <Sidebar.Item href="/dashboard/profile" icon={HiUserCircle}>
                 Profile
               </Sidebar.Item>
+              <Sidebar.Item onClick={() => signOut({ callbackUrl: "/login" })} icon={HiOutlineLogout} class="cursor-pointer">
+                Sign Out
+              </Sidebar.Item>
             </Sidebar.ItemGroup>
           </Sidebar.Items>
         </Sidebar>
       </div>
       <div className="sm:ml-64 p-4 md:p-8 z-10">{children}</div>
-
       {isSidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-black opacity-50 md:hidden"

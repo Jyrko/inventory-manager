@@ -1,34 +1,57 @@
 "use client";
-import { useState } from 'react';
-import { Button, Checkbox, Label, TextInput } from 'flowbite-react';
-import Link from 'next/link';
 
-import LenifyLogo from '@/public/images/lenify-logo.webp';
-import Image from 'next/image';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button, Checkbox, Label, TextInput } from "flowbite-react";
+import Link from "next/link";
+import Image from "next/image";
+import LenifyLogo from "@/public/images/lenify-logo.webp";
+
+interface FormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+}
 
 function Register() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    acceptTerms: false,
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<FormData>();
+  const [registrationError, setRegistrationError] = useState("");
 
+  const onSubmit = async (data: FormData) => {
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        }),
+      });
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+      const result = await response.json();
+  
+      if (response.ok) {
+        window.location.href = "/login";
+      } else {
+        setRegistrationError(result.message);
+      }
+    } catch (error) {
+      console.log(error.message);
+      setRegistrationError("An error occurred. Please try again later.");
+    }
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
-  };
+  
+  
+  
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -37,10 +60,10 @@ function Register() {
           href="#"
           className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
         >
-          <Image 
+          <Image
             src={LenifyLogo}
             alt="Lenify Logo"
-            className='h-8 w-8 mr-2 object-contain'
+            className="h-8 w-8 mr-2 object-contain"
           />
           Lenify
         </a>
@@ -49,64 +72,99 @@ function Register() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Create an account
             </h1>
-            <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+            <form
+              className="space-y-4 md:space-y-6"
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <div>
                 <Label htmlFor="email" value="Your email" />
                 <TextInput
                   type="email"
-                  name="email"
                   id="email"
                   placeholder="name@company.com"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
+                  {...register("email", { required: "Email is required" })}
+                  color={errors.email ? "failure" : "gray"}
                 />
+                {errors.email && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="password" value="Password" />
                 <TextInput
                   type="password"
-                  name="password"
                   id="password"
                   placeholder="••••••••"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
+                  {...register("password", {
+                    required: "Password is required",
+                  })}
+                  color={errors.password ? "failure" : "gray"}
                 />
+                {errors.password && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="confirm-password" value="Confirm password" />
                 <TextInput
                   type="password"
-                  name="confirmPassword"
                   id="confirm-password"
                   placeholder="••••••••"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
+                  {...register("confirmPassword", {
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === getValues("password") ||
+                      "Passwords do not match",
+                  })}
+                  color={errors.confirmPassword ? "failure" : "gray"}
                 />
+                {errors.confirmPassword && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
               </div>
               <div className="flex items-start">
                 <Checkbox
                   id="terms"
-                  name="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onChange={handleChange}
-                  required
+                  {...register("acceptTerms", {
+                    required: "You must accept the terms and conditions",
+                  })}
                 />
-                <Label htmlFor="terms" className="ml-2 text-sm font-light text-gray-500 dark:text-gray-300">
-                  I accept the{' '}
-                  <Link href="/terms-conditions" className="font-medium text-primary-600 hover:underline dark:text-primary-500">
+                <Label
+                  htmlFor="terms"
+                  className="ml-2 text-sm font-light text-gray-500 dark:text-gray-300"
+                >
+                  I accept the{" "}
+                  <Link
+                    href="/terms-conditions"
+                    className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                  >
                     Terms and Conditions
                   </Link>
                 </Label>
+                {errors.acceptTerms && (
+                  <p className="text-red-600 text-sm mt-1">
+                    {errors.acceptTerms.message}
+                  </p>
+                )}
               </div>
+              {registrationError && (
+                <p className="text-red-600 text-sm mt-1">{registrationError}</p>
+              )}
               <Button type="submit" className="w-full">
                 Create an account
               </Button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Already have an account?{' '}
-                <Link href="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                >
                   Login here
                 </Link>
               </p>
@@ -116,6 +174,6 @@ function Register() {
       </div>
     </section>
   );
-};
+}
 
 export default Register;

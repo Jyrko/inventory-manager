@@ -42,3 +42,8 @@ export const MOCK_DATA_TABLE_2 = [
   { id: 19, name: "Nest Cam Mount", color: "Black", category: "Accessories", price: "$29" },
   { id: 20, name: "Pixelbook Go Sleeve", color: "Just Black", category: "Accessories", price: "$49" }
 ];
+
+
+export const MOCK_USERS = [
+  
+]
