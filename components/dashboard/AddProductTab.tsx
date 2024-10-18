@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
+import { getSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { Button, Label, TextInput, Select, Textarea } from "flowbite-react";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
@@ -11,6 +12,18 @@ function AddProductTab() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const session = await getSession();
+      console.log(session);
+      if (!session || session?.user?.role < 2) {
+        window.location.href = "/dashboard"; 
+      }
+    };
+
+    checkUserRole();
+  }, []);
 
   const onSubmit = async (data: any) => {
     try {

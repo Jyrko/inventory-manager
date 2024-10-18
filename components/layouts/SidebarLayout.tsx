@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "flowbite-react";
 import {signOut} from "next-auth/react";
+import { getSession } from "next-auth/react";
 import {
   HiMenu,
   HiChartPie,
@@ -22,6 +23,24 @@ interface SidebarLayoutProps {
 
 export default function SidebarLayout({ children }: SidebarLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [allowMenagerRoutes, setAllowMenagerRoutes] = useState(false);
+  const [allowAdminRoutes, setAllowAdminRoutes] = useState(false);
+  
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const session = await getSession();
+      console.log(session);
+      if (session?.user?.role >= 2) {
+        setAllowMenagerRoutes(true);
+      }
+      if (session?.user?.role === 3) {
+        setAllowAdminRoutes(true);
+      } 
+    };
+
+    checkUserRole();
+  }, []);
 
   const toggleSidebar = () => {
     console.log("toggleSidebar");
@@ -59,14 +78,18 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
               <Sidebar.Item href="/dashboard/" icon={HiChartPie}>
                 Dashboard
               </Sidebar.Item>
+              {allowMenagerRoutes && (
               <Sidebar.Collapse icon={HiShoppingBag} label="Wharehouse">
                 <Sidebar.Item href="/dashboard/new-product">New Product</Sidebar.Item>
                 {/* <Sidebar.Item href="/dashboard/new-category">New Category</Sidebar.Item> */}
                 <Sidebar.Item href="/dashboard/all-products">All Products</Sidebar.Item>
               </Sidebar.Collapse>
-              <Sidebar.Item href="/dashboard/users" icon={HiUser}>
-                Users
-              </Sidebar.Item>
+              )}
+              {allowAdminRoutes && (
+                <Sidebar.Item href="/dashboard/users" icon={HiUser}>
+                  Users
+                </Sidebar.Item>
+              )}
               <Sidebar.Item href="/dashboard/profile" icon={HiUserCircle}>
                 Profile
               </Sidebar.Item>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Select, TextInput, Label } from "flowbite-react";
 import { useForm } from "react-hook-form";
+import { getSession } from "next-auth/react";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
 import PaginatedTable from "@/components/dashboard/common/PaginatedTableUsers"; // New reusable component
 import Loading from "@/components/dashboard/common/Loading";
@@ -33,6 +34,17 @@ function UserManagement() {
     formState: { errors },
     reset,
   } = useForm();
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const session = await getSession();
+      if (!session || session?.user?.role < 3) {
+        window.location.href = "/dasboard"; 
+      }
+    };
+
+    checkUserRole();
+  }, []);
 
   useEffect(() => {
     setLoading(true);

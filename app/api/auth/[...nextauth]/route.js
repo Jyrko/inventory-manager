@@ -25,8 +25,7 @@ export const authOptions = {
         if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
           throw new Error("Invalid email or password");
         }
-
-        return { id: user.id, email: user.email };
+        return { id: user.id, email: user.email, role: user.role };
       },
     }),
   ],
@@ -38,18 +37,19 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.email = user.email;
+        token.role = user.role;
+      }
+      return token;
+    },
     async session({ session, token }) {
       if (session.user) {
         session.user.email = token.email;
+        session.user.role = token.role;
       }
-      console.log("session", session);
       return session;
-    },
-    async jwt({ token, user }) {
-      if (user && user.email) {
-        token.email = user.email;
-      }
-      return token;
     },
   },
 };

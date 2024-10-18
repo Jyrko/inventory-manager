@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getSession } from "next-auth/react";
 import SidebarLayout from "@/components/layouts/SidebarLayout";
 import ProductsTable from "@/components/dashboard/common/ProductsTable";
 import Loading from "@/components/dashboard/common/Loading";
@@ -18,6 +19,18 @@ export default function ProductsTab() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const session = await getSession();
+      console.log(session);
+      if (!session || session?.user?.role < 2) {
+        window.location.href = "/dashboard"; 
+      }
+    };
+
+    checkUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
